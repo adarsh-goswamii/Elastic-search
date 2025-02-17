@@ -7,6 +7,13 @@ info = es.info()
 
 book_index = "books"
 
+document = {
+    "title": "Hello world!",
+    "author": "Adarsh",
+    "created_on": "2025-01-01",
+    "rating": 4.5
+}
+
 # deleting an index
 es.indices.delete(index=book_index, ignore_unavailable=True)
 
@@ -17,13 +24,6 @@ es.indices.create(index=book_index, settings={
         "number_of_replicas": 2
     }
 })
-
-document = {
-    "title": "Hello world!",
-    "author": "Adarsh",
-    "created_on": "2025-01-01",
-    "rating": 4.5
-}
 
 # Adding document to an index
 book_response = es.index(index=book_index, body=document)
@@ -129,4 +129,22 @@ response = es.update(index=book_index, id=book_response.get('_id', ""),
 response = es.update(index=book_index, id="wrong_id",
           doc={ "title": "Learn elasticsearch" }, doc_as_upsert=True)
 
-print(es.get(index=book_index, id=response.get('_id')))
+response = es.bulk(operations=[
+    {
+        "index": {
+            "_index": book_index,
+            "_id": "1"
+        },
+    },
+    document,
+    {
+        "create": {
+            "_index": book_index,
+            "_id": "2"
+        }
+    },
+    document
+])
+
+
+print(response)
